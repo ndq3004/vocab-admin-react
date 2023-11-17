@@ -3,45 +3,84 @@ import axios from 'axios'
 
 
 
-export const getLeadsContent = createAsyncThunk('/leads/content', async () => {
-	const response = await axios.get('/api/users?page=2', {})
+export const getVocabsContent = createAsyncThunk('/vocabs/content/all', async () => {
+	const response = await axios.get('http://localhost:3001/vocabs', {})
 	return response.data;
 })
 
-export const leadsSlice = createSlice({
-    name: 'leads',
+export const saveVocabsContent = createAsyncThunk('/vocab/save', async (vocabData, { rejectWithValue }) => {
+    try {
+        const response = await axios.post('http://localhost:3001/vocab', vocabData.vocabObj)
+        return response.data
+    } catch (error) {
+        return rejectWithValue(error);
+    }
+})
+
+export const deleteVocab = createAsyncThunk('/vocab/delete', async (vocabData, { rejectWithValue }) => {
+    try {
+        const response = await axios.delete('http://localhost:3001/vocab/' + vocabData._id)
+        return vocabData;
+    } catch (error) {
+        return rejectWithValue(error);
+    }
+})
+
+export const vocabsSlice = createSlice({
+    name: 'vocabs',
     initialState: {
         isLoading: false,
-        leads : []
+        vocabs : [],
+
     },
     reducers: {
 
-
         addNewVocab: (state, action) => {
-            let {newLeadObj} = action.payload
-            state.leads = [...state.leads, newLeadObj]
+            // let {vocabObj} = action.payload
+            // state.vocabs = [...state.vocabs, vocabObj]
         },
 
         deleteLead: (state, action) => {
             let {index} = action.payload
-            state.leads.splice(index, 1)
+            state.vocabs.splice(index, 1)
         }
     },
 
     extraReducers: {
-		[getLeadsContent.pending]: state => {
+		[getVocabsContent.pending]: state => {
 			state.isLoading = true
 		},
-		[getLeadsContent.fulfilled]: (state, action) => {
-			state.leads = action.payload.data
+		[getVocabsContent.fulfilled]: (state, action) => {
+			state.vocabs = action.payload.data
 			state.isLoading = false
 		},
-		[getLeadsContent.rejected]: state => {
+		[getVocabsContent.rejected]: state => {
 			state.isLoading = false
 		},
+        [saveVocabsContent.pending]: state => {
+            state.isLoading = true;
+        },
+        [saveVocabsContent.fulfilled]: (state, response) => {
+            let vocabObj = response.payload.data
+            state.vocabs = [...state.vocabs, vocabObj]
+            state.isLoading = false;
+        },
+        [saveVocabsContent.rejected]: state => {
+            state.isLoading = true;
+        },
+        [deleteVocab.pending]: state => {
+            state.isLoading = true;
+        },
+        [deleteVocab.fulfilled]: (state, data) => {
+            state.vocabs = [...state.vocabs.filter(v => v._id !== data.payload._id)]
+            state.isLoading = false;
+        },
+        [deleteVocab.rejected]: state => {
+            state.isLoading = false;
+        },
     }
 })
 
-export const { addNewVocab, deleteLead } = leadsSlice.actions
+export const { addNewVocab, deleteLead } = vocabsSlice.actions
 
-export default leadsSlice.reducer
+export default vocabsSlice.reducer

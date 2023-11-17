@@ -5,7 +5,7 @@ import SelectBox from '../../../components/Input/SelectBox'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ErrorText from '../../../components/Typography/ErrorText'
 import { showNotification } from "../../common/headerSlice"
-import { addNewVocab } from "../vocabSlice"
+import { addNewVocab, saveVocabsContent } from "../vocabSlice"
 
 const getInitialDatetime = () => {
     const current = new Date();
@@ -13,12 +13,6 @@ const getInitialDatetime = () => {
     const timePart = current.toTimeString().slice(0,5);
 
     return `${datePart}T${timePart}`
-}
-
-const INITIAL_VOCAB_OBJ = {
-    word : "",
-    review_count : 0,
-    created_date: getInitialDatetime()
 }
 
 const WORD_TYPE_OPTIONS = [
@@ -48,6 +42,14 @@ const WORD_TYPE_OPTIONS = [
     },
 ]
 
+const INITIAL_VOCAB_OBJ = {
+    word : "",
+    word_type: WORD_TYPE_OPTIONS.at(0).value,
+    meaning: "",
+    review_count : 0,
+    created_date: getInitialDatetime()
+}
+
 function AddVocabModelBody({closeModal}){
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false)
@@ -58,11 +60,8 @@ function AddVocabModelBody({closeModal}){
     const saveNewLead = () => {
         if(vocabObj.word.trim() === "")return setErrorMessage("Word is required!")
         else{
-            let newLeadObj = {
-                
-            }
-            dispatch(addNewVocab({newLeadObj}))
-            dispatch(showNotification({message : "New Lead Added!", status : 1}))
+            dispatch(addNewVocab({vocabObj}))
+            dispatch(saveVocabsContent({vocabObj}))
             closeModal()
         }
     }
@@ -76,6 +75,7 @@ function AddVocabModelBody({closeModal}){
     const updateSelectBoxValue = ({updateType, value}) => {
         setErrorMessage("")
         setVocabObj({...vocabObj, [updateType] : value})
+        console.log(vocabObj);
     }
 
     return(
@@ -85,11 +85,12 @@ function AddVocabModelBody({closeModal}){
             
             <SelectBox 
                 options={WORD_TYPE_OPTIONS}
-                labelTitle="Period"
+                labelTitle="Type of word"
                 placeholder="Select type of word"
                 containerStyle="w-72"
                 defaultValue={WORD_TYPE_OPTIONS.at(0).value}
-                updateFormValue={updateSelectBoxValue} />
+                updateFormValue={updateSelectBoxValue}
+                updateType="word_type" />
 
             <TextAreaInput labelTitle="Meaning" updateType="meaning" defaultValue={vocabObj.meaning} updateFormValue={updateFormValue}/>
             
