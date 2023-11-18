@@ -20,7 +20,6 @@ const TopSideButtons = () => {
     )
 }
 
-
 function Vocabs(){
     const { vocabs } = useSelector(state => state.vocab);
     const dispatch = useDispatch();
