@@ -11,8 +11,7 @@ app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 //mongo
 const { MongoClient, ObjectId } = require("mongodb");
-const uri = 'mongodb+srv://nguyenquan3004:gvY9FB51GpsLbn5G@clusterfunix.utiuxfg.mongodb.net/?retryWrites=true&w=majority'
-const client = new MongoClient(uri);
+const client = new MongoClient(process.env.MONGO_DB_URI);
 const database = client.db("vocabapp");
 const vocabsCollection = database.collection("vocabs");
 
