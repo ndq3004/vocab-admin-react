@@ -109,12 +109,10 @@ export const vocabsSlice = createSlice({
       state.isLoading = true;
     },
     [generateExample.fulfilled]: (state, data) => {
-      debugger;
       state.currentSample = data.payload.data[0].message.content;
       state.isLoading = false;
     },
     [generateExample.rejected]: (state) => {
-      debugger;
       state.isLoading = false;
     },
   },
