@@ -1,11 +1,11 @@
-import { useState } from "react"
-import { useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import InputText from '../../../components/Input/InputText'
 import SelectBox from '../../../components/Input/SelectBox'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ErrorText from '../../../components/Typography/ErrorText'
 import { showNotification } from "../../common/headerSlice"
-import { addNewVocab, saveVocabsContent } from "../vocabSlice"
+import { addNewVocab, saveVocabsContent, generateExample } from "../vocabSlice"
 
 const getInitialDatetime = () => {
     const current = new Date();
@@ -47,6 +47,7 @@ const INITIAL_VOCAB_OBJ = {
     word_type: WORD_TYPE_OPTIONS.at(0).value,
     meaning: "",
     review_count : 0,
+    sample: "",
     created_date: getInitialDatetime()
 }
 
@@ -55,6 +56,8 @@ function AddVocabModelBody({closeModal}){
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [vocabObj, setVocabObj] = useState(INITIAL_VOCAB_OBJ)
+    const [randomStr, setRandomStr] = useState("123")
+    const { currentSample } = useSelector(state => state.vocab);
 
 
     const saveNewLead = () => {
@@ -78,10 +81,22 @@ function AddVocabModelBody({closeModal}){
         console.log(vocabObj);
     }
 
+    const generateExampleForWord = () => {
+        dispatch(generateExample(vocabObj.word))
+    }
+
+    useEffect(() => {
+        if (currentSample) {
+            console.log(currentSample);
+            updateFormValue({updateType: 'sample', value: currentSample})
+        }
+    }, [currentSample])
+
     return(
         <>
 
             <InputText type="text" defaultValue={vocabObj.word} updateType="word" containerStyle="mt-4 w-72" labelTitle="Word" updateFormValue={updateFormValue}/>
+            <InputText type="text" defaultValue={randomStr} updateType="word" containerStyle="mt-4 w-72" labelTitle="Word" updateFormValue={updateFormValue}/>
             
             <SelectBox 
                 options={WORD_TYPE_OPTIONS}
@@ -95,6 +110,7 @@ function AddVocabModelBody({closeModal}){
             <TextAreaInput labelTitle="Meaning" updateType="meaning" defaultValue={vocabObj.meaning} updateFormValue={updateFormValue}/>
             
             <TextAreaInput defaultValue={vocabObj.sample} updateType="sample" containerStyle="mt-4" labelTitle="Sample" updateFormValue={updateFormValue}/>
+            <button onClick={generateExampleForWord}>Generate</button>
 
             <InputText disabled={true} type="number"  defaultValue={vocabObj.review_count} updateType="review_count" containerStyle="mt-4" labelTitle="Review count" updateFormValue={updateFormValue}/>
 

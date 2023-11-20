@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react"
-import TitleCard from "../../components/Cards/TitleCard"
+import { useEffect } from "react";
+import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
 import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from '../../utils/globalConstantUtil'
 import { getVocabsContent, deleteVocab } from './vocabSlice'
@@ -26,7 +26,11 @@ function Vocabs(){
 
     useEffect(() => {
         dispatch(getVocabsContent())
-    }, [])    
+    }, [])
+
+    const refreshList = () => {
+        dispatch(getVocabsContent())
+    }
 
     const deleteCurrentLead = (word) => {
         dispatch(deleteVocab(word));

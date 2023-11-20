@@ -1,19 +1,24 @@
-
-
 const express = require("express");
 const app = express();
 var cors = require('cors')
+const path = require('path')
 
 app.use(cors());
  
 //middleware
 app.use(express.json());
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
+//mongo
 const { MongoClient, ObjectId } = require("mongodb");
 const uri = 'mongodb+srv://nguyenquan3004:gvY9FB51GpsLbn5G@clusterfunix.utiuxfg.mongodb.net/?retryWrites=true&w=majority'
 const client = new MongoClient(uri);
 const database = client.db("vocabapp");
 const vocabsCollection = database.collection("vocabs");
+
+//mem cache
+const NodeCache = require('node-cache');
+const mc = new NodeCache({stdTTL: 3000})
 
 const getAll = async () => {
   const cursor = vocabsCollection.find({});
@@ -31,23 +36,48 @@ const getAll = async () => {
   return docs
 }
 
-app.get('/', async (req, res) => {
-  
+const { OpenAI } = require("openai");
+
+const config = new OpenAI({
+  apiKey: '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'
+});
+
+const generateExampleFn = async (word) => {
+  if (mc.has(word)) {
+    console.log('has cache for ' + word);
+    return mc.get(word);
+  }
+  const res = await config.chat.completions.create({
+    messages: [{ role: 'user', content: `generate some examples for the word "${word}"` }],
+    model: 'gpt-3.5-turbo',
+  });
+
+  mc.set(word, res.choices);
+
+  console.log(res)
+
+  return res.choices;
+}
+
+
+
+app.get('/api', async (req, res) => {
+  generateExampleFn();
   res.send({});
 })
 
-app.get('/vocabs', async (req, res) => {
+app.get('/api/vocabs', async (req, res) => {
   const result = await getAll();
   res.send({data: result});
 })
 
-app.get('/vocab/:id', async (req, res) => {
+app.get('/api/vocab/:id', async (req, res) => {
   const id = req.params.id;
   const result = await vocabsCollection.find(new ObjectId(id));
   res.send({data: result});
 })
 
-app.post('/vocab', async (req, res) => {
+app.post('/api/vocab', async (req, res) => {
   const payload = req.body;
   const doc = {
     word: payload.word,
@@ -61,18 +91,28 @@ app.post('/vocab', async (req, res) => {
   res.send({data: payload});
 })
 
-app.put('/vocab/:id', async (req, res) => {
+app.put('/api/vocab/:id', async (req, res) => {
   const payload = req.body;
   const id = req.params.id;
   const result = await getAll();
   res.send({data: result});
 })
 
-app.delete('/vocab/:id', async (req, res) => {
+app.delete('/api/vocab/:id', async (req, res) => {
   const id = req.params.id;
   await vocabsCollection.deleteOne({_id: new ObjectId(id)});
   res.send({msg: "success"});
 })
+
+app.get('/api/openai/:word', async (req, res) => {
+  const choices = await generateExampleFn(req.params.word);
+  res.send({data: choices})
+})
+
+// All other GET requests not handled before will return our React app
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+});
  
 app.listen(3001, 'localhost', () => {
   console.log("Server is running on port 3001");
