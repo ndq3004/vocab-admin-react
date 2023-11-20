@@ -39,7 +39,7 @@ const getAll = async () => {
 const { OpenAI } = require("openai");
 
 const config = new OpenAI({
-  apiKey: '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'
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 const generateExampleFn = async (word) => {
