@@ -6,6 +6,8 @@ module.exports = Object.freeze({
         CONFIRMATION : "CONFIRMATION",
         DEFAULT : "",
         VOCAB_ADD_NEW: "VOCAB_ADD_NEW",
+        VOCAB_EDIT: "VOCAB_EDIT",
+        VOCAB_VIEW: "VOCAB_VIEW",
     },
 
     RIGHT_DRAWER_TYPES : {

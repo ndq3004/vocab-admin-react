@@ -6,6 +6,10 @@ import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from '../../utils/gl
 import { getVocabsContent, deleteVocab } from './vocabSlice'
 import moment from "moment";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
+import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
+import PlusCircleIcon from "@heroicons/react/24/outline/PlusCircleIcon";
+import MinusCircleIcon from "@heroicons/react/24/outline/MinusCircleIcon";
+import ArrowsPointingOutIcon from "@heroicons/react/24/outline/ArrowsPointingOutIcon";
 
 const TopSideButtons = () => {
     const dispatch = useDispatch();
@@ -31,6 +35,14 @@ function Vocabs(){
     const deleteCurrentLead = (word) => {
         dispatch(deleteVocab(word));
     }
+
+    const openEditVocabModal = (word) => {
+        dispatch(openModal({title: "Add new vocab", bodyType: MODAL_BODY_TYPES.VOCAB_EDIT, extraObject: word}))
+    }
+
+    const openViewVocabModal = (word) => {
+        dispatch(openModal({title: "View vocab", bodyType: MODAL_BODY_TYPES.VOCAB_VIEW, extraObject: word}))
+    }
     
     return (
         <>
@@ -43,7 +55,7 @@ function Vocabs(){
                             <th>Type</th>
                             <th>meaning</th>
                             <th>Review count</th>
-                            <th>Status</th>
+                            <th className="text-center">View more</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -55,9 +67,18 @@ function Vocabs(){
                                         <td>{l.word}</td>
                                         <td>{l.word_type}</td>
                                         <td>{l.meaning}</td>
-                                        <td>{l.review_count}</td>
-                                        <td>{l.status}</td>
-                                        <td><button className="btn btn-square btn-ghost" onClick={() => deleteCurrentLead(l)}><TrashIcon className="w-5"/></button></td>
+                                        <td>
+                                            <span className="mr-2">{l.review_count}</span>
+                                            <button className="btn btn-square btn-ghost w-6" onClick={() => openEditVocabModal(l)}><MinusCircleIcon/></button>
+                                            <button className="btn btn-square btn-ghost w-6" onClick={() => openEditVocabModal(l)}><PlusCircleIcon/></button>
+                                        </td>
+                                        <td className="text-center">
+                                            <button className="btn btn-square btn-ghost w-6" onClick={() => openViewVocabModal(l)}><ArrowsPointingOutIcon/></button>
+                                        </td>
+                                        <td>
+                                            <button className="btn btn-square btn-ghost" onClick={() => openEditVocabModal(l)}><PencilIcon className="w-5"/></button>
+                                            <button className="btn btn-square btn-ghost" onClick={() => deleteCurrentLead(l)}><TrashIcon className="w-5"/></button>
+                                        </td>
                                     </tr>
                                 )
                             })

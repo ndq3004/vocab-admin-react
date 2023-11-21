@@ -64,8 +64,17 @@ app.post('/vocab', async (req, res) => {
 app.put('/vocab/:id', async (req, res) => {
   const payload = req.body;
   const id = req.params.id;
-  const result = await getAll();
-  res.send({data: result});
+  const result = await vocabsCollection.updateOne(
+    {_id: new ObjectId(payload._id)},
+    {
+      $set: {
+        word: payload.word,
+        word_type: payload.word_type,
+        meaning: payload.meaning,
+        sample: payload.sample
+      }
+    })
+  res.send({ success: result.modifiedCount == 1 ? true : false, data: payload});
 })
 
 app.delete('/vocab/:id', async (req, res) => {

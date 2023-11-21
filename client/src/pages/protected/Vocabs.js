@@ -6,7 +6,8 @@ import Vocabs from '../../features/vocabs';
 function InternalPage(){
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(dispatch(setPageTitle({ title : "Vocabs"})));
+        const title = window.screen.width < 1250 ? "Vocabs mobile" : "Vocabs"
+        dispatch(dispatch(setPageTitle({ title })));
     }, [])
 
     return <Vocabs />

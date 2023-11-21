@@ -17,8 +17,6 @@ function ModalLayout(){
         dispatch(closeModal(e))
     }
 
-
-
     return(
         <>
         {/* The button to open modal */}
@@ -35,7 +33,9 @@ function ModalLayout(){
                     {
                              [MODAL_BODY_TYPES.LEAD_ADD_NEW] : <AddLeadModalBody closeModal={close} extraObject={extraObject}/>,
                              [MODAL_BODY_TYPES.CONFIRMATION] : <ConfirmationModalBody extraObject={extraObject} closeModal={close}/>,
-                             [MODAL_BODY_TYPES.VOCAB_ADD_NEW] : <AddVocabModelBody closeModal={close} extraObject={extraObject}/>,
+                             [MODAL_BODY_TYPES.VOCAB_ADD_NEW] : <AddVocabModelBody mode="add" closeModal={close} extraObject={extraObject}/>,
+                             [MODAL_BODY_TYPES.VOCAB_EDIT] : <AddVocabModelBody mode="edit" closeModal={close} extraObject={extraObject}/>,
+                             [MODAL_BODY_TYPES.VOCAB_VIEW] : <AddVocabModelBody mode="view" closeModal={close} extraObject={extraObject}/>,
                              [MODAL_BODY_TYPES.DEFAULT] : <div></div>
                     }[bodyType]
                 }

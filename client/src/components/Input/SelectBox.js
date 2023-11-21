@@ -7,7 +7,7 @@ import InformationCircleIcon from '@heroicons/react/24/outline/InformationCircle
 
 function SelectBox(props){
     
-    const {labelTitle, labelDescription, defaultValue, containerStyle, placeholder, labelStyle, options, updateType, updateFormValue} = props
+    const {labelTitle, labelDescription, defaultValue, containerStyle, placeholder, labelStyle, options, updateType, updateFormValue, disabled} = props
 
     const [value, setValue] = useState(defaultValue || "")
 
@@ -26,7 +26,7 @@ function SelectBox(props){
                 </div>
             </label>
 
-            <select className="select select-bordered w-full" value={value} onChange={(e) => updateValue(e.target.value)}>
+            <select disabled={disabled} className="select select-bordered w-full" value={value} onChange={(e) => updateValue(e.target.value)}>
                 <option disabled value="PLACEHOLDER">{placeholder}</option>
                 {
                     options.map((o, k) => {

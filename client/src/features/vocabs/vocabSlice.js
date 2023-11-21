@@ -11,7 +11,16 @@ export const getVocabsContent = createAsyncThunk('/vocabs/content/all', async ()
 export const saveVocabsContent = createAsyncThunk('/vocab/save', async (vocabData, { rejectWithValue }) => {
     try {
         const response = await axios.post('http://localhost:3001/vocab', vocabData.vocabObj)
-        return response.data
+        return response;
+    } catch (error) {
+        return rejectWithValue(error);
+    }
+})
+
+export const updateVocabsContent = createAsyncThunk('/vocab/update', async (vocabData, { rejectWithValue }) => {
+    try {
+        const response = await axios.put('http://localhost:3001/vocab/' + vocabData.vocabObj._id, vocabData.vocabObj)
+        return response.data;
     } catch (error) {
         return rejectWithValue(error);
     }
@@ -19,7 +28,7 @@ export const saveVocabsContent = createAsyncThunk('/vocab/save', async (vocabDat
 
 export const deleteVocab = createAsyncThunk('/vocab/delete', async (vocabData, { rejectWithValue }) => {
     try {
-        const response = await axios.delete('http://localhost:3001/vocab/' + vocabData._id)
+        await axios.delete('http://localhost:3001/vocab/' + vocabData._id)
         return vocabData;
     } catch (error) {
         return rejectWithValue(error);
@@ -76,6 +85,21 @@ export const vocabsSlice = createSlice({
             state.isLoading = false;
         },
         [deleteVocab.rejected]: state => {
+            state.isLoading = false;
+        },
+        [updateVocabsContent.pending]: state => {
+            state.isLoading = true;
+        },
+        [updateVocabsContent.fulfilled]: (state, response) => {
+            if (response.payload.success){
+                const vocabObj = state.vocabs.find(x => x._id == response.payload.data._id);
+                Object.keys(vocabObj).forEach(k => {
+                    vocabObj[k] = response.payload.data[k];
+                })
+            }
+            state.isLoading = false;
+        },
+        [updateVocabsContent.rejected]: state => {
             state.isLoading = false;
         },
     }

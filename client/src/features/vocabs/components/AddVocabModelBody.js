@@ -5,7 +5,7 @@ import SelectBox from '../../../components/Input/SelectBox'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ErrorText from '../../../components/Typography/ErrorText'
 import { showNotification } from "../../common/headerSlice"
-import { addNewVocab, saveVocabsContent } from "../vocabSlice"
+import { updateVocabsContent, saveVocabsContent } from "../vocabSlice"
 
 const getInitialDatetime = () => {
     const current = new Date();
@@ -50,18 +50,22 @@ const INITIAL_VOCAB_OBJ = {
     created_date: getInitialDatetime()
 }
 
-function AddVocabModelBody({closeModal}){
+function AddVocabModelBody({closeModal, mode, extraObject}){
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
-    const [vocabObj, setVocabObj] = useState(INITIAL_VOCAB_OBJ)
-
+    const isEditMode = mode === 'edit';
+    const isViewMode = mode === 'view';
+    const [vocabObj, setVocabObj] = useState((isEditMode || isViewMode) ? extraObject : INITIAL_VOCAB_OBJ)
 
     const saveNewLead = () => {
         if(vocabObj.word.trim() === "")return setErrorMessage("Word is required!")
         else{
-            dispatch(addNewVocab({vocabObj}))
-            dispatch(saveVocabsContent({vocabObj}))
+            if (mode == 'add') {
+                dispatch(saveVocabsContent({vocabObj}))
+            } else if (mode = 'edit') {
+                dispatch(updateVocabsContent({vocabObj}))
+            }
             closeModal()
         }
     }
@@ -81,7 +85,7 @@ function AddVocabModelBody({closeModal}){
     return(
         <>
 
-            <InputText type="text" defaultValue={vocabObj.word} updateType="word" containerStyle="mt-4 w-72" labelTitle="Word" updateFormValue={updateFormValue}/>
+            <InputText disabled={isViewMode} type="text" defaultValue={vocabObj.word} updateType="word" containerStyle="mt-4 w-72" labelTitle="Word" updateFormValue={updateFormValue}/>
             
             <SelectBox 
                 options={WORD_TYPE_OPTIONS}
@@ -90,11 +94,12 @@ function AddVocabModelBody({closeModal}){
                 containerStyle="w-72"
                 defaultValue={WORD_TYPE_OPTIONS.at(0).value}
                 updateFormValue={updateSelectBoxValue}
-                updateType="word_type" />
+                updateType="word_type" 
+                disabled={isViewMode}/>
 
-            <TextAreaInput labelTitle="Meaning" updateType="meaning" defaultValue={vocabObj.meaning} updateFormValue={updateFormValue}/>
+            <TextAreaInput disabled={isViewMode} labelTitle="Meaning" updateType="meaning" defaultValue={vocabObj.meaning} updateFormValue={updateFormValue}/>
             
-            <TextAreaInput defaultValue={vocabObj.sample} updateType="sample" containerStyle="mt-4" labelTitle="Sample" updateFormValue={updateFormValue}/>
+            <TextAreaInput disabled={isViewMode} defaultValue={vocabObj.sample} updateType="sample" containerStyle="mt-4" labelTitle="Sample" updateFormValue={updateFormValue}/>
 
             <InputText disabled={true} type="number"  defaultValue={vocabObj.review_count} updateType="review_count" containerStyle="mt-4" labelTitle="Review count" updateFormValue={updateFormValue}/>
 
@@ -102,8 +107,8 @@ function AddVocabModelBody({closeModal}){
 
             <ErrorText styleClass="mt-16">{errorMessage}</ErrorText>
             <div className="modal-action">
-                <button  className="btn btn-ghost" onClick={() => closeModal()}>Cancel</button>
-                <button  className="btn btn-primary px-6" onClick={() => saveNewLead()}>Save</button>
+                <button  className="btn btn-ghost" onClick={() => closeModal()}>{isViewMode ? 'Close' : 'Cancel'}</button>
+                {!isViewMode && <button  className="btn btn-primary px-6" onClick={() => saveNewLead()}>Save</button>}
             </div>
         </>
     )
