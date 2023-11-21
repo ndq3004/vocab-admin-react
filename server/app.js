@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require("express");
 const app = express();
 var cors = require('cors')
@@ -11,7 +13,7 @@ app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 //mongo
 const { MongoClient, ObjectId } = require("mongodb");
-const client = new MongoClient(process.env.MONGO_DB_URI);
+const client = new MongoClient(process.env.MONGO_DB_CONNECTION_STRING);
 const database = client.db("vocabapp");
 const vocabsCollection = database.collection("vocabs");
 
