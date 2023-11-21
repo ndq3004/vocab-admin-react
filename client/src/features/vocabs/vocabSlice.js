@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const serverLink = "http://localhost:3001/api/";
+const serverLink = "api/";
 
 export const getVocabsContent = createAsyncThunk(
   "/vocabs/content/all",
@@ -16,7 +16,7 @@ export const saveVocabsContent = createAsyncThunk(
   async (vocabData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/vocab",
+        serverLink + "vocab",
         vocabData.vocabObj
       );
       return response;
@@ -31,7 +31,7 @@ export const updateVocabsContent = createAsyncThunk(
   async (vocabData, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        "http://localhost:3001/vocab/" + vocabData.vocabObj._id,
+        serverLink + "vocab/" + vocabData.vocabObj._id,
         vocabData.vocabObj
       );
       return response.data;

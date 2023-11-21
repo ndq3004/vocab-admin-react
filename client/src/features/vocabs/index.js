@@ -49,8 +49,7 @@ function Vocabs(){
     }
     
     return (
-        <>
-            <TitleCard title="Vocab List" topMargin="mt-2" TopSideButtons={<TopSideButtons />}>
+        <TitleCard title="Vocab List" topMargin="mt-2" TopSideButtons={<TopSideButtons />}>
                 <div className="overflow-x-auto w-full">
                     <table className="table w-full">
                         <thead>
@@ -91,7 +90,6 @@ function Vocabs(){
                     </table>
                 </div>
             </TitleCard>
-        </>
     );
 
 }

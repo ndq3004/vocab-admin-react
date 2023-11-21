@@ -18,6 +18,7 @@ import InboxArrowDownIcon from '@heroicons/react/24/outline/InboxArrowDownIcon'
 import UsersIcon from '@heroicons/react/24/outline/UsersIcon'
 import KeyIcon from '@heroicons/react/24/outline/KeyIcon'
 import DocumentDuplicateIcon from '@heroicons/react/24/outline/DocumentDuplicateIcon'
+import AcademicCapIcon from '@heroicons/react/24/outline/AcademicCapIcon'
 
 const iconClasses = `h-6 w-6`
 const submenuIconClasses = `h-5 w-5`
@@ -36,7 +37,7 @@ const routes = [
   },
   {
     path: '/app/vocabs', // url
-    icon: <InboxArrowDownIcon className={iconClasses}/>, // icon component
+    icon: <AcademicCapIcon className={iconClasses}/>, // icon component
     name: 'Vocabs', // name that appear in Sidebar
   },
   {

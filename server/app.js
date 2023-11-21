@@ -5,26 +5,34 @@ const app = express();
 var cors = require('cors')
 const path = require('path')
 
+const { PORT = 3000 } = process.env;
 app.use(cors());
  
 //middleware
 app.use(express.json());
-app.use(express.static(path.resolve(__dirname, '../client/build')));
+app.use(express.static(path.resolve(__dirname, 'build')));
 
 //mongo
 const { MongoClient, ObjectId } = require("mongodb");
-const client = new MongoClient(process.env.MONGO_DB_CONNECTION_STRING);
-const database = client.db("vocabapp");
-const vocabsCollection = database.collection("vocabs");
+let vocabClient = null;
+
+const initVocabClient = () => {
+  if (vocabClient == null) {
+    const client = new MongoClient(process.env.MONGO_DB_CONNECTION_STRING);
+    const database = client.db("vocabapp");
+    vocabClient = database.collection("vocabs");
+  }
+  return vocabClient;
+}
 
 //mem cache
 const NodeCache = require('node-cache');
 const mc = new NodeCache({stdTTL: 3000})
 
 const getAll = async () => {
-  const cursor = vocabsCollection.find({});
+  const cursor = initVocabClient().find({});
   // Print a message if no documents were found
-  if ((await vocabsCollection.countDocuments({})) === 0) {
+  if ((await initVocabClient().countDocuments({})) === 0) {
     console.log("No documents found!");
   }
 
@@ -39,11 +47,11 @@ const getAll = async () => {
 
 const { OpenAI } = require("openai");
 
-const config = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
 const generateExampleFn = async (word) => {
+  const config = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+
   if (mc.has(word)) {
     console.log('has cache for ' + word);
     return mc.get(word);
@@ -62,8 +70,8 @@ const generateExampleFn = async (word) => {
 
 
 
-app.get('/api', async (req, res) => {
-  res.send({});
+app.get('/api/test', async (req, res) => {
+  res.send({ success: 'test version' });
 })
 
 app.get('/api/vocabs', async (req, res) => {
@@ -73,7 +81,7 @@ app.get('/api/vocabs', async (req, res) => {
 
 app.get('/api/vocab/:id', async (req, res) => {
   const id = req.params.id;
-  const result = await vocabsCollection.find(new ObjectId(id));
+  const result = await initVocabClient().find(new ObjectId(id));
   res.send({data: result});
 })
 
@@ -87,14 +95,14 @@ app.post('/api/vocab', async (req, res) => {
     created_date: new Date()
   }
   console.log(doc)
-  await vocabsCollection.insertOne(payload);
+  await initVocabClient().insertOne(payload);
   res.send({data: payload});
 })
 
 app.put('/api/vocab/:id', async (req, res) => {
   const payload = req.body;
   const id = req.params.id;
-  const result = await vocabsCollection.updateOne(
+  const result = await initVocabClient().updateOne(
     {_id: new ObjectId(id)},
     {
       $set: {
@@ -109,7 +117,7 @@ app.put('/api/vocab/:id', async (req, res) => {
 
 app.delete('/api/vocab/:id', async (req, res) => {
   const id = req.params.id;
-  await vocabsCollection.deleteOne({_id: new ObjectId(id)});
+  await initVocabClient().deleteOne({_id: new ObjectId(id)});
   res.send({msg: "success"});
 })
 
@@ -123,7 +131,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
  
-app.listen(3001, 'localhost', () => {
-  console.log("Server is running on port 3001");
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
 
