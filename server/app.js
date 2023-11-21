@@ -61,7 +61,6 @@ const generateExampleFn = async (word) => {
 
 
 app.get('/api', async (req, res) => {
-  generateExampleFn();
   res.send({});
 })
 
@@ -94,7 +93,7 @@ app.put('/api/vocab/:id', async (req, res) => {
   const payload = req.body;
   const id = req.params.id;
   const result = await vocabsCollection.updateOne(
-    {_id: new ObjectId(payload._id)},
+    {_id: new ObjectId(id)},
     {
       $set: {
         word: payload.word,
