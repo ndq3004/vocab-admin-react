@@ -1,11 +1,11 @@
-import { useState } from "react"
-import { useDispatch } from "react-redux"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
 import InputText from '../../../components/Input/InputText'
 import SelectBox from '../../../components/Input/SelectBox'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ErrorText from '../../../components/Typography/ErrorText'
 import { showNotification } from "../../common/headerSlice"
-import { updateVocabsContent, saveVocabsContent } from "../vocabSlice"
+import { updateVocabsContent, saveVocabsContent, generateExample } from "../vocabSlice"
 
 const getInitialDatetime = () => {
     const current = new Date();
@@ -47,6 +47,7 @@ const INITIAL_VOCAB_OBJ = {
     word_type: WORD_TYPE_OPTIONS.at(0).value,
     meaning: "",
     review_count : 0,
+    sample: "",
     created_date: getInitialDatetime()
 }
 
@@ -57,6 +58,7 @@ function AddVocabModelBody({closeModal, mode, extraObject}){
     const isEditMode = mode === 'edit';
     const isViewMode = mode === 'view';
     const [vocabObj, setVocabObj] = useState((isEditMode || isViewMode) ? extraObject : INITIAL_VOCAB_OBJ)
+    const { currentSample } = useSelector(state => state.vocab);
 
     const saveNewLead = () => {
         if(vocabObj.word.trim() === "")return setErrorMessage("Word is required!")
@@ -82,6 +84,17 @@ function AddVocabModelBody({closeModal, mode, extraObject}){
         console.log(vocabObj);
     }
 
+    const generateExampleForWord = () => {
+        dispatch(generateExample(vocabObj.word))
+    }
+
+    useEffect(() => {
+        if (currentSample) {
+            console.log(currentSample);
+            updateFormValue({updateType: 'sample', value: currentSample})
+        }
+    }, [currentSample])
+
     return(
         <>
 
@@ -100,6 +113,7 @@ function AddVocabModelBody({closeModal, mode, extraObject}){
             <TextAreaInput disabled={isViewMode} labelTitle="Meaning" updateType="meaning" defaultValue={vocabObj.meaning} updateFormValue={updateFormValue}/>
             
             <TextAreaInput disabled={isViewMode} defaultValue={vocabObj.sample} updateType="sample" containerStyle="mt-4" labelTitle="Sample" updateFormValue={updateFormValue}/>
+            <button onClick={generateExampleForWord}>Generate</button>
 
             <InputText disabled={true} type="number"  defaultValue={vocabObj.review_count} updateType="review_count" containerStyle="mt-4" labelTitle="Review count" updateFormValue={updateFormValue}/>
 
