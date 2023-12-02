@@ -3,15 +3,16 @@ import { useEffect } from "react";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
 import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from '../../utils/globalConstantUtil'
-import { getVocabsContent, deleteVocab } from './vocabSlice'
+import { getVocabsContent, deleteVocab, updateVocabsContent } from './vocabSlice'
 import moment from "moment";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
 import PlusCircleIcon from "@heroicons/react/24/outline/PlusCircleIcon";
 import MinusCircleIcon from "@heroicons/react/24/outline/MinusCircleIcon";
 import ArrowsPointingOutIcon from "@heroicons/react/24/outline/ArrowsPointingOutIcon";
+import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
 
-const TopSideButtons = () => {
+const TopSideButtons = ({refreshList}) => {
     const dispatch = useDispatch();
     const openAddNewVocabModal = () => {
         dispatch(openModal({title: "Add new vocab", bodyType: MODAL_BODY_TYPES.VOCAB_ADD_NEW}))
@@ -19,6 +20,7 @@ const TopSideButtons = () => {
 
     return(
         <div className="inline-block float-right">
+            <button className="btn btn-ghost" onClick={refreshList}><ArrowPathIcon className="w-5"/></button>
             <button className="btn px-6 btn-sm normal-case btn-primary" onClick={() => openAddNewVocabModal()}>Add New</button>
         </div>
     )
@@ -47,9 +49,21 @@ function Vocabs(){
     const openViewVocabModal = (word) => {
         dispatch(openModal({title: "View vocab", bodyType: MODAL_BODY_TYPES.VOCAB_VIEW, extraObject: word}))
     }
+
+    const decreaseViewCount = (word) => {
+        if (word) {
+            dispatch(updateVocabsContent({vocabObj: {...word, review_count: word.review_count + 1}}));
+        }
+    }
+
+    const increaseViewCount = (word) => {
+        if (word) {
+            dispatch(updateVocabsContent({vocabObj: {...word, review_count: word.review_count - 1}}));
+        }
+    }
     
     return (
-        <TitleCard title="Vocab List" topMargin="mt-2" TopSideButtons={<TopSideButtons />}>
+        <TitleCard title="Vocab List" topMargin="mt-2" TopSideButtons={<TopSideButtons refreshList={refreshList}/>}>
                 <div className="overflow-x-auto w-full">
                     <table className="table w-full">
                         <thead>
@@ -72,8 +86,8 @@ function Vocabs(){
                                         <td>{l.meaning}</td>
                                         <td>
                                             <span className="mr-2">{l.review_count}</span>
-                                            <button className="btn btn-square btn-ghost w-6" onClick={() => openEditVocabModal(l)}><MinusCircleIcon/></button>
-                                            <button className="btn btn-square btn-ghost w-6" onClick={() => openEditVocabModal(l)}><PlusCircleIcon/></button>
+                                            <button className="btn btn-square btn-ghost w-6" onClick={() => increaseViewCount(l)}><MinusCircleIcon/></button>
+                                            <button className="btn btn-square btn-ghost w-6" onClick={() => decreaseViewCount(l)}><PlusCircleIcon/></button>
                                         </td>
                                         <td className="text-center">
                                             <button className="btn btn-square btn-ghost w-6" onClick={() => openViewVocabModal(l)}><ArrowsPointingOutIcon/></button>

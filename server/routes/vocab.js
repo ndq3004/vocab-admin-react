@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { vocabClient, filterWithId, getAll } = require("./../db/mongodbConnection");
+const { generateExampleForWord } = require('../extentions/openaiGenerator');
 
 // /api
 router.get('/test', async (req, res) => {
@@ -43,7 +44,8 @@ router.put('/vocab/:id', async (req, res) => {
         word: payload.word,
         word_type: payload.word_type,
         meaning: payload.meaning,
-        sample: payload.sample
+        sample: payload.sample,
+        review_count: payload.review_count,
       }
     })
   res.send({ success: result.modifiedCount == 1 ? true : false, data: payload});
@@ -56,13 +58,8 @@ router.delete('/vocab/:id', async (req, res) => {
 })
 
 router.get('/openai/:word', async (req, res) => {
-  const choices = await generateExampleFn(req.params.word);
+  const choices = await generateExampleForWord(req.params.word);
   res.send({data: choices})
 })
 
-// All other GET requests not handled before will return our React app
-router.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-});
- 
 module.exports = router;

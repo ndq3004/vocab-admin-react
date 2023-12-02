@@ -19,7 +19,7 @@ export const saveVocabsContent = createAsyncThunk(
         serverLink + "vocab",
         vocabData.vocabObj
       );
-      return response;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }

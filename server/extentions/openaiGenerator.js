@@ -3,7 +3,7 @@ const mc = new NodeCache({ stdTTL: 3000 })
 
 const { OpenAI } = require("openai");
 
-export const generateExampleForWord = async (word) => {
+exports.generateExampleForWord = async (word) => {
     const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
     });
