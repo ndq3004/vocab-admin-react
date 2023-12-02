@@ -1,22 +1,23 @@
+require('./../configuration/setupConfig').configEnv();
 const { MongoClient, ObjectId } = require("mongodb");
 const client = new MongoClient(process.env.MONGO_DB_CONNECTION_STRING);
 
-const $_vocabClient = null;
+let $_vocabClient = null;
 
-export const vocabClient = () => {
+exports.vocabClient = () => {
     if (!$_vocabClient) {
         const database = client.db("vocabapp");
-        vocabClient = database.collection("vocabs");
+        $_vocabClient = database.collection("vocabs");
         console.log('created vocab client')
     }
     return $_vocabClient;
 }
 
-export const filterWithId = (id) => {
+exports.filterWithId = (id) => {
     return { _id: new ObjectId(id) };
 }
 
-export const getAll = async (dbClient) => {
+exports.getAll = async (dbClient) => {
     const cursor = dbClient.find({});
     // Print a message if no documents were found
     if ((await dbClient.countDocuments({})) === 0) {
