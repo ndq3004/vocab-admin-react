@@ -32,4 +32,4 @@ credential.txt
 */.env.test.local
 */.env.production.local
 
-*/build/*
+client/build/*

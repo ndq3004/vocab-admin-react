@@ -8,7 +8,7 @@ const initializeApp = () => {
 
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
         // dev code
-
+        axios.defaults.baseURL = process.env.REACT_APP_BASE_URL
 
 
     } else {
