@@ -34,6 +34,6 @@ exports.getAll = async (dbClient) => {
         return docs
     } catch (error) {
         $_vocabClient = null;
-        return error;
+        console.log(error)
     }
 } 
