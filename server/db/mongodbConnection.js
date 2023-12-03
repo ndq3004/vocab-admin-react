@@ -18,17 +18,22 @@ exports.filterWithId = (id) => {
 }
 
 exports.getAll = async (dbClient) => {
-    const cursor = dbClient.find({ review_count: { $lt: 6 }});
-    // Print a message if no documents were found
-    if ((await dbClient.countDocuments({})) === 0) {
-        console.log("No documents found!");
+    try {
+        const cursor = dbClient.find({ review_count: { $lt: 6 }});
+        // Print a message if no documents were found
+        if ((await dbClient.countDocuments({})) === 0) {
+            console.log("No documents found!");
+        }
+    
+        const docs = [];
+        // Print returned documents
+        for await (const doc of cursor) {
+            docs.push(doc);
+        }
+    
+        return docs
+    } catch (error) {
+        $_vocabClient = null;
+        return error;
     }
-
-    const docs = [];
-    // Print returned documents
-    for await (const doc of cursor) {
-        docs.push(doc);
-    }
-
-    return docs
 } 

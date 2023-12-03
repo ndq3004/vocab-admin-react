@@ -67,6 +67,30 @@ export const generateExample = createAsyncThunk(
   }
 );
 
+export const backup = createAsyncThunk(
+  "vocab/backup",
+  async (wordText, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(serverLink + "backup", { responseType: 'blob'});
+      // create file link in browser's memory
+      const href = URL.createObjectURL(res.data);
+
+      // create "a" HTML element with href to file & click
+      const link = document.createElement('a');
+      link.href = href;
+      link.setAttribute('download', 'file.json'); //or any other extension
+      document.body.appendChild(link);
+      link.click();
+
+      // clean up "a" element & remove ObjectURL
+      document.body.removeChild(link);
+      URL.revokeObjectURL(href);
+    } catch (error) {
+      rejectWithValue(error);
+    }
+  }
+);
+
 export const vocabsSlice = createSlice({
   name: "vocabs",
   initialState: {
@@ -75,15 +99,9 @@ export const vocabsSlice = createSlice({
     currentSample: "",
   },
   reducers: {
-    addNewVocab: (state, action) => {
-      // let {vocabObj} = action.payload
-      // state.vocabs = [...state.vocabs, vocabObj]
-    },
-
-    deleteLead: (state, action) => {
-      let { index } = action.payload;
-      state.vocabs.splice(index, 1);
-    },
+    resetGeneratedExample: (state, action) =>{
+      state.currentSample = "";
+    }
   },
 
   extraReducers: {
@@ -150,6 +168,6 @@ export const vocabsSlice = createSlice({
   },
 });
 
-export const { addNewVocab, deleteLead } = vocabsSlice.actions;
+export const { resetGeneratedExample } = vocabsSlice.actions;
 
 export default vocabsSlice.reducer;

@@ -5,7 +5,7 @@ import SelectBox from '../../../components/Input/SelectBox'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ErrorText from '../../../components/Typography/ErrorText'
 import { showNotification } from "../../common/headerSlice"
-import { updateVocabsContent, saveVocabsContent, generateExample } from "../vocabSlice"
+import { updateVocabsContent, saveVocabsContent, generateExample, resetGeneratedExample } from "../vocabSlice"
 
 const getInitialDatetime = () => {
     const current = new Date();
@@ -68,6 +68,8 @@ function AddVocabModelBody({closeModal, mode, extraObject}){
             } else if (mode = 'edit') {
                 dispatch(updateVocabsContent({vocabObj}))
             }
+
+            dispatch(resetGeneratedExample());
             closeModal()
         }
     }

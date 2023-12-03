@@ -23,7 +23,7 @@ exports.configApp = (app) => {
     //middleware
 
     const path = require('path')
-    app.use(express.static(path.resolve(__dirname, 'build')));
+    app.use(express.static(path.resolve(__dirname, '../build')));
 
     const cookieParser = require('cookie-parser')
     app.use(cookieParser())

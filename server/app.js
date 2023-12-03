@@ -8,13 +8,10 @@ require("./configuration/setupConfig").configApp(app);
 
 //router
 const vocabRouter = require("./routes/vocab");
+const defaultRouter = require("./routes/default");
 
 app.use('/api', vocabRouter)
-
-// All other GET requests not handled before will return our React app
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-});
+app.use('*', defaultRouter)
 
 // run listener
 const { PORT = 3000 } = process.env;
