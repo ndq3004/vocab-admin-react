@@ -2,9 +2,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import TitleCard from "../../components/Cards/TitleCard";
 import { openModal } from "../common/modalSlice";
-import { CONFIRMATION_MODAL_CLOSE_TYPES, MODAL_BODY_TYPES } from '../../utils/globalConstantUtil'
+import { MODAL_BODY_TYPES } from '../../utils/globalConstantUtil'
 import { getVocabsContent, deleteVocab, updateVocabsContent, backup } from './vocabSlice'
-import moment from "moment";
 import TrashIcon from "@heroicons/react/24/outline/TrashIcon";
 import PencilIcon from "@heroicons/react/24/outline/PencilIcon";
 import PlusCircleIcon from "@heroicons/react/24/outline/PlusCircleIcon";
@@ -33,6 +32,7 @@ function Vocabs(){
     const dispatch = useDispatch();
 
     useEffect(() => {
+        debugger
         dispatch(getVocabsContent())
     }, [])
 
