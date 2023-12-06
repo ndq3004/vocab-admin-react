@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkadmin_dashboard_template_dashwind=self.webpackChunkadmin_dashboard_template_dashwind||[]).push([[488],{4488:function(a,e,n){n.r(e),n.d(e,{default:function(){return d}});n(2791),n(8880);var t=n(184);function d(){return(0,t.jsx)("div",{className:"page-layout",children:(0,t.jsx)("div",{className:"page-layout__content"})})}}}]);
+//# sourceMappingURL=488.16d45280.chunk.js.map

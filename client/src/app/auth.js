@@ -8,7 +8,6 @@ const checkAuth = () => {
     const PUBLIC_ROUTES = ["login", "forgot-password", "register", "documentation"]
 
     const isPublicPage = PUBLIC_ROUTES.some( r => window.location.href.includes(r))
-
     if(!TOKEN && !isPublicPage){
         window.location.href = '/login'
         return;
@@ -33,6 +32,15 @@ const checkAuth = () => {
           });
         return TOKEN
     }
+}
+
+export const checkToken = () => {
+  return localStorage.getItem("token");
+}
+
+export const setToken = (token) => {
+  localStorage.setItem("token", token);
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
 export default checkAuth

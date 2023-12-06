@@ -9,7 +9,7 @@ const LoginButton = () => {
     
     return <button onClick={() => loginWithRedirect({
         appState: {
-          returnTo: "/app/vocabs",
+          returnTo: "/app/welcome",
         },
       })}>Log In with integration</button>;
 };

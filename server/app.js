@@ -1,29 +1,22 @@
 const express = require("express");
 const app = express();
-const { auth, requiredScopes, claimIncludes  } = require("express-oauth2-jwt-bearer");
-
-const checkJwt = auth({
-  audience: "vocab-challenge.test",
-  issuerBaseURL: `https://dev-jja1yv2m7fu0pjyn.us.auth0.com/`,
-  tokenSigningAlg: 'RS256',
-});
+const { auth } = require("express-oauth2-jwt-bearer");
 
 
 // configure app
 require("./configuration/setupConfig").configApp(app);
 
+const checkJwt = auth({
+  audience: process.env.AUTH_AUDIENCE,
+  issuerBaseURL: process.env.AUTH_ISSUER_BASE_URL,
+  tokenSigningAlg: process.env.AUTH_TOKEN_SIGNING_ALG,
+});
+
 //router
 const vocabRouter = require("./routes/vocab");
 const defaultRouter = require("./routes/default");
 
-app.use('/api', checkJwt, (req, res, next) => {
-  console.log(req.auth.payload.permissions)
-  if (req.auth.payload.permissions && req.auth.payload.permissions.includes('read:vocab')) {
-    next()
-  }else{
-    res.sendStatus(401)
-  }
-}, vocabRouter)
+app.use('/api', checkJwt, vocabRouter)
 
 app.use('*', defaultRouter)
 

@@ -27,19 +27,25 @@ initializeApp();
 // Check for login and initialize axios
 const authInfo = {
   token: null,
+  isAuthenticated: false
 };
-// const token = checkAuth();
+// const token = checkAuth()
 
 function App() {
-  const token = "";
   useEffect(() => {
     // 👆 daisy UI themes initialization
     themeChange(false);
   }, []);
 
+  const onAuthenticated = (appState) => {
+    if (appState) {
+      authInfo.isAuthenticated = true; 
+    }
+  }
+
   return (
     <Router>
-      <Auth0ProviderWithHistory>
+      <Auth0ProviderWithHistory onAuthenticated={onAuthenticated}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -53,7 +59,7 @@ function App() {
           <Route
             path="*"
             element={
-              <Navigate to={token ? "/app/welcome" : "/login"} replace />
+              <Navigate to={authInfo.isAuthenticated ? "/app/welcome" : "/login"} replace />
             }
           />
         </Routes>
