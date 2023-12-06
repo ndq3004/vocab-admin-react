@@ -11,6 +11,8 @@ import MinusCircleIcon from "@heroicons/react/24/outline/MinusCircleIcon";
 import ArrowsPointingOutIcon from "@heroicons/react/24/outline/ArrowsPointingOutIcon";
 import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
 import CircleStackIcon from "@heroicons/react/24/outline/CircleStackIcon";
+import { useAuth0 } from "@auth0/auth0-react";
+import axios from "axios";
 
 const TopSideButtons = ({refreshList, downloadBackup}) => {
     const dispatch = useDispatch();
@@ -28,11 +30,17 @@ const TopSideButtons = ({refreshList, downloadBackup}) => {
 }
 
 function Vocabs(){
+    const { getAccessTokenSilently } = useAuth0();
+
+    getAccessTokenSilently({}).then(res => {
+        console.log(res)
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res}`; 
+      });
+
     const { vocabs } = useSelector(state => state.vocab);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        debugger
         dispatch(getVocabsContent())
     }, [])
 

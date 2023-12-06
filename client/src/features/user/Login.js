@@ -3,6 +3,16 @@ import {Link} from 'react-router-dom'
 import LandingIntro from './LandingIntro'
 import ErrorText from  '../../components/Typography/ErrorText'
 import InputText from '../../components/Input/InputText'
+import { useAuth0 } from "@auth0/auth0-react";
+const LoginButton = () => {
+    const { loginWithRedirect } = useAuth0();
+    
+    return <button onClick={() => loginWithRedirect({
+        appState: {
+          returnTo: "/app/vocabs",
+        },
+      })}>Log In with integration</button>;
+};
 
 function Login(){
 
@@ -14,6 +24,9 @@ function Login(){
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
     const [loginObj, setLoginObj] = useState(INITIAL_LOGIN_OBJ)
+
+    const { user } = useAuth0();
+    console.log(user)
 
     const submitForm = (e) =>{
         e.preventDefault()
@@ -34,6 +47,9 @@ function Login(){
         setErrorMessage("")
         setLoginObj({...loginObj, [updateType] : value})
     }
+
+    const { isAuthenticated } = useAuth0();
+    
 
     return(
         <div className="min-h-screen bg-base-200 flex items-center">
@@ -59,7 +75,7 @@ function Login(){
 
                         <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>
                         <button type="submit" className={"btn mt-2 w-full btn-primary" + (loading ? " loading" : "")}>Login</button>
-
+                        <LoginButton />
                         <div className='text-center mt-4'>Don't have an account yet? <Link to="/register"><span className="  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">Register</span></Link></div>
                     </form>
                 </div>

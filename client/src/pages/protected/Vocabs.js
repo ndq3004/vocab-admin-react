@@ -8,7 +8,7 @@ function InternalPage(){
     useEffect(() => {
         const title = window.screen.width < 1250 ? "Vocabs mobile" : "Vocabs"
         dispatch(dispatch(setPageTitle({ title })));
-    }, [])
+    }, [dispatch])
 
     return <Vocabs />
 }
