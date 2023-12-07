@@ -16,6 +16,10 @@ const checkJwt = auth({
 const vocabRouter = require("./routes/vocab");
 const defaultRouter = require("./routes/default");
 
+app.get('/api/test', (req, res) => {
+  res.send({ success: 'test version' });
+})
+
 app.use('/api', checkJwt, vocabRouter)
 
 app.use('*', defaultRouter)
