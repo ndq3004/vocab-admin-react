@@ -6,9 +6,6 @@ const { vocabClient, filterWithId, getAll } = require("./../db/mongodbConnection
 const { generateExampleForWord } = require('../extentions/openaiGenerator');
 
 // /api
-router.get('/test', async (req, res) => {
-  res.send({ success: 'test version' });
-})
 
 router.get('/vocabs', async (req, res) => {
   const result = await getAll(vocabClient());
