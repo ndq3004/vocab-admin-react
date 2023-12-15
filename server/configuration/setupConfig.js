@@ -2,10 +2,10 @@
 
 exports.configApp = (app) => {
     require('dotenv').config()
-
     const express = require("express");
     app.use(express.json());
-
+    
+    console.log("here")
     var allowlist = ['http://localhost:3000', 'http://localhost:3001']
     var corsOptionsDelegate = function (req, callback) {
         var corsOptions;

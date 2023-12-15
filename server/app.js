@@ -20,7 +20,7 @@ app.get('/api/test', (req, res) => {
   res.send({ success: 'test version' });
 })
 
-app.use('/api', checkJwt, vocabRouter)
+app.use('/api/vocab', checkJwt, vocabRouter)
 
 app.use('*', defaultRouter)
 

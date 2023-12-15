@@ -48,6 +48,8 @@ const Auth0ProviderWithHistory = ({ children, onAuthenticated }) => {
         redirect_uri: redirectUri,
         audience: audience
       }}
+      cacheLocation='localstorage'
+      useRefreshTokens={true}
     >
       <BoundProvider>
         {children}

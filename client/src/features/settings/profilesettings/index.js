@@ -6,6 +6,7 @@ import { showNotification } from '../../common/headerSlice'
 import InputText from '../../../components/Input/InputText'
 import TextAreaInput from '../../../components/Input/TextAreaInput'
 import ToogleInput from '../../../components/Input/ToogleInput'
+import { useAuth0, LocalStorageCache } from "@auth0/auth0-react"
 
 function ProfileSettings(){
 
@@ -21,14 +22,16 @@ function ProfileSettings(){
         console.log(updateType)
     }
 
+    const auth0Cacher = new LocalStorageCache();
+    const user = auth0Cacher.get(`@@auth0spajs@@::${process.env.REACT_APP_AUTH0_CLIENT_ID}::@@user@@`).decodedToken.user;
+
+    console.log(user)
     return(
-        <>
-            
             <TitleCard title="Profile Settings" topMargin="mt-2">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputText labelTitle="Name" defaultValue="Alex" updateFormValue={updateFormValue}/>
-                    <InputText labelTitle="Email Id" defaultValue="alex@dashwind.com" updateFormValue={updateFormValue}/>
+                    <InputText labelTitle="Name" defaultValue={user.name} updateFormValue={updateFormValue}/>
+                    <InputText labelTitle="Email Id" defaultValue={user.email} updateFormValue={updateFormValue}/>
                     <InputText labelTitle="Title" defaultValue="UI/UX Designer" updateFormValue={updateFormValue}/>
                     <InputText labelTitle="Place" defaultValue="California" updateFormValue={updateFormValue}/>
                     <TextAreaInput labelTitle="About" defaultValue="Doing what I love, part time traveller" updateFormValue={updateFormValue}/>
@@ -43,7 +46,6 @@ function ProfileSettings(){
 
                 <div className="mt-16"><button className="btn btn-primary float-right" onClick={() => updateProfile()}>Update</button></div>
             </TitleCard>
-        </>
     )
 }
 

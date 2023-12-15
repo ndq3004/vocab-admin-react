@@ -7,18 +7,18 @@ const { generateExampleForWord } = require('../extentions/openaiGenerator');
 
 // /api
 
-router.get('/vocabs', async (req, res) => {
+router.get('/all', async (req, res) => {
   const result = await getAll(vocabClient());
   res.send({data: result});
 })
 
-router.get('/vocab/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   const id = req.params.id;
   const result = await vocabClient().find(filterWithId(id));
   res.send({data: result});
 })
 
-router.post('/vocab', async (req, res) => {
+router.post('', async (req, res) => {
   const payload = req.body;
   const doc = {
     word: payload.word,
@@ -32,7 +32,7 @@ router.post('/vocab', async (req, res) => {
   res.send({data: payload});
 })
 
-router.put('/vocab/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   const payload = req.body;
   const id = req.params.id;
   const result = await vocabClient().updateOne(
@@ -49,7 +49,7 @@ router.put('/vocab/:id', async (req, res) => {
   res.send({ success: result.modifiedCount == 1 ? true : false, data: payload});
 })
 
-router.delete('/vocab/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   const id = req.params.id;
   await vocabClient().deleteOne(filterWithId(id));
   res.send({msg: "success"});
@@ -69,25 +69,11 @@ router.get('/openai', async (req, res) => {
 router.get('/backup', async (req, res) => {
   console.log('start backup')
   const result = await getAll(vocabClient());
-  var fs = require('fs');
+  const fs = require('fs');
   fs.writeFile('backup.json', JSON.stringify(result), () => {
     res.setHeader('Content-Type', 'text/plain');
     res.download(path.resolve('backup.json'))
-  });
-  // fs.readFile('backup.json', (err, data) => {
-  //   res.setHeader('Content-Disposition', 'attachment; filename="file.txt"');
-  //   res.setHeader('Content-Type', 'text/plain');
-
-  //   // Pipe the file data into the response
-  //   res.end(data);
-  // });
-  // res.setHeader('Content-Length', file.length);
-  // res.setHeader('Content-Type', 'file');
-  // res.setHeader('Content-Disposition', 'attachment; filename=backup.json');
-  // res.write(file, 'binary');
-  // res.end();
-  
-  
+  });  
 })
 
 module.exports = router;
