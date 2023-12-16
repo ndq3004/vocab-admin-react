@@ -4,12 +4,11 @@ import LandingIntro from './LandingIntro'
 import ErrorText from  '../../components/Typography/ErrorText'
 import InputText from '../../components/Input/InputText'
 import { useAuth0 } from "@auth0/auth0-react";
-// import { Auth0TokenProvider } from '../../app/auth'
+import { Auth0TokenProvider } from '../../app/auth'
 
 function Login(){
 
-    // const authProvider = new Auth0TokenProvider();
-    // authProvider.getRefreshToken();
+    const authProvider = new Auth0TokenProvider();
 
     const INITIAL_LOGIN_OBJ = {
         password : "",
@@ -24,11 +23,12 @@ function Login(){
 
     const submitForm = (e) =>{
         e.preventDefault()
-        loginWithRedirect({
-            appState: {
-              returnTo: "/app/welcome",
-            },
-          })
+        window.location.href = authProvider.getAuthorizeUrl()
+        // loginWithRedirect({
+        //     appState: {
+        //       returnTo: "/app/welcome",
+        //     },
+        //   })
     }
 
     return(
@@ -54,7 +54,10 @@ function Login(){
                         </div> */}
 
                         <ErrorText styleClass="mt-8">{errorMessage}</ErrorText>
-                        <button type="submit" className={"btn mt-2 w-full btn-primary"}>Login</button>
+                        <button type="submit" className={"btn mt-2 w-full btn-primary"}>
+                            <a href={authProvider.getAuthorizeUrl()}>Login with api call</a>
+                        </button>
+                        <button type="submit" className={"btn mt-2 w-full btn-primary"}>Login with redirect </button>
                         <div className='text-center mt-4'>Don't have an account yet? <Link to="/register"><span className="  inline-block  hover:text-primary hover:underline hover:cursor-pointer transition duration-200">Register</span></Link></div>
                     </form>
                 </div>

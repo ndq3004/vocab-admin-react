@@ -6,6 +6,7 @@ import { setToken, checkToken } from './app/auth';
 
 const BoundProvider = ({children}) => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
+  console.log('isAuthenticated:', isAuthenticated)
   if (isAuthenticated && !checkToken()){
     document.body.classList.add('loading-indicator');
     getAccessTokenSilently().then(res => {

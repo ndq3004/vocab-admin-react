@@ -3,6 +3,10 @@ import { LocalStorageCache } from "@auth0/auth0-react"
 
 const auth0Cacher = new LocalStorageCache();
 
+const cacheProvider = sessionStorage;
+
+let requestWithRefreshTokenInterval = null;
+
 const checkTokenExpiry = () => {
   // debugger
 
@@ -12,7 +16,7 @@ const checkTokenExpiry = () => {
     const current = new Date();
     if (exp < current.getTime()/1000){
       cacheKeys.forEach(e => { auth0Cacher.remove(e); })
-      localStorage.token = ""
+      cacheProvider.token = ""
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
@@ -21,9 +25,9 @@ const checkTokenExpiry = () => {
 }
 
 const checkAuth = () => {
-/*  Getting token value stored in localstorage, if token is not present we will open login page 
+/*  Getting token value stored in cacheProvider, if token is not present we will open login page 
     for all internal dashboard routes  */
-    const TOKEN = localStorage.getItem("token");
+    const TOKEN = cacheProvider.getItem("token");
     const PUBLIC_ROUTES = ["login", "forgot-password", "register", "documentation"]
 
     const isPublicPage = PUBLIC_ROUTES.some( r => window.location.href.includes(r))
@@ -50,8 +54,8 @@ const checkAuth = () => {
           }, function (error) {
             document.body.classList.remove('loading-indicator');
             if (error.response.status === 401) {
-              localStorage.removeItem('token')
-              window.location.href = '/login'
+              // cacheProvider.removeItem('token')
+              // window.location.href = '/login'
             }
             return Promise.reject(error);
           });
@@ -60,33 +64,98 @@ const checkAuth = () => {
 }
 
 export const checkToken = () => {
-  return localStorage.getItem("token");
+  return sessionStorage.getItem("token");
 }
 
 export const setToken = (token) => {
-  localStorage.setItem("token", token);
+  sessionStorage.setItem("token", token);
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
 export class Auth0TokenProvider {
   constructor(){
     this.audience = process.env.REACT_APP_AUTH0_AUDIENCE;
-    this.scope = 'openid profile email'
+    this.scope = 'openid profile email offline_access'
     this.responseType = 'code'
     this.clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
     this.callbackUrl = process.env.REACT_APP_AUTH0_CALLBACK_URL;
   }
-  async getRefreshToken() {
-    const uri = `https://dev-jja1yv2m7fu0pjyn.us.auth0.com/authorize?` + 
+
+  getAuthorizeUrl() {
+    return `https://dev-jja1yv2m7fu0pjyn.us.auth0.com/authorize?` + 
                 `audience=${this.audience}&` +
-                //   `scope=${this.scope}&` +
+                `scope=${this.scope}&` +
                   `response_type=${this.responseType}&` +
                   `client_id=${this.clientId}&` +
                   `redirect_uri=${this.callbackUrl}`;
-                  // `state=xyz`;
-    const response = await axios.get(uri);
-    console.log(response)
-    return response;
+  }
+
+  getAuthenticationCodeFromUrl(){
+    const query = window.location.search.substring(1);
+    const params = query.split('&');
+    const codePath = params.find(x => x.startsWith('code'))
+    return codePath ? codePath.split('=')[1] : '';
+  }
+
+  getStateTokenFromUrl(){
+    const query = window.location.search.substring(1);
+    const params = query.split('&');
+    const codePath = params.find(x => x.startsWith('state'))
+    return codePath ? codePath.split('=')[1] : '';
+  }
+
+  requestToken(){
+    const data = {
+        grant_type: 'authorization_code',
+        client_id: 'PmlN7DqTnv2vTI3m4n0tSVluZvqAvt90',
+        client_secret: process.env.REACT_APP_AUTH0_CLIENT_SECRET,
+        code: this.getAuthenticationCodeFromUrl(),
+        redirect_uri: 'http://localhost:3000/callback',
+        code_verifier: this.getStateTokenFromUrl()
+      }
+    const headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    return axios.post('https://dev-jja1yv2m7fu0pjyn.us.auth0.com/oauth/token', data, { headers }).then(res => {
+      console.log(res);
+      if (res && res.data) {
+        const credential = res.data;
+        setToken(credential.access_token);
+        Object.keys(credential).forEach(k => sessionStorage.setItem(k, credential[k]))
+
+        window.location.href = '/app/welcome'
+
+        setInterval(() => {
+          alert('it\'s time');
+        }, credential.expires_in * 1000)
+
+        requestWithRefreshTokenInterval = setInterval(() => {
+          debugger
+          this.requestWithRefreshToken()
+        }, (credential.expires_in + 20) * 1000 );
+      }
+    })
+  }
+
+  requestWithRefreshToken(){
+    const data = {
+      grant_type: 'refresh_token',
+      client_id: 'PmlN7DqTnv2vTI3m4n0tSVluZvqAvt90',
+      client_secret: process.env.REACT_APP_AUTH0_CLIENT_SECRET,
+      refresh_token: cacheProvider.getItem('refresh_token')
+    }
+
+    const headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    return axios.post('https://dev-jja1yv2m7fu0pjyn.us.auth0.com/oauth/token', data, { headers }).then(res => {
+      console.log(res);
+      if (res && res.data) {
+        const credential = res.data;
+        setToken(credential.access_token);
+        Object.keys(credential).forEach(k => sessionStorage.setItem(k, credential[k]))
+      }
+    }).catch(res => {
+      debugger
+    })
   }
 }
 
