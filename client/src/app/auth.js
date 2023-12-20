@@ -8,26 +8,31 @@ const cacheProvider = sessionStorage;
 let requestWithRefreshTokenInterval = null;
 
 const checkTokenExpiry = () => {
-  // debugger
-
-  const cacheKeys = auth0Cacher.allKeys()
-  if (Array.isArray(cacheKeys) && (cacheKeys.length > 0)) {
-    const exp = auth0Cacher.get(`@@auth0spajs@@::${process.env.REACT_APP_AUTH0_CLIENT_ID}::@@user@@`).decodedToken.claims.exp;
-    const current = new Date();
-    if (exp < current.getTime()/1000){
-      cacheKeys.forEach(e => { auth0Cacher.remove(e); })
-      cacheProvider.token = ""
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
-      }
-    }
+  console.log('checkTokenExpiry, requestWithRefreshTokenInterval = ', requestWithRefreshTokenInterval);
+  if (!requestWithRefreshTokenInterval && cacheProvider.access_token) {
+    const tokenExp = parseJwt(cacheProvider.access_token).exp;
+    requestWithRefreshTokenInterval = setTimeout(() => {
+      console.log('retrieving new token');
+      (new Auth0TokenProvider()).requestWithRefreshToken()
+      clearTimeout(requestWithRefreshTokenInterval);
+    }, (tokenExp+20) * 1000 - (new Date()).getTime());
   }
+}
+
+const parseJwt = (token) => {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
 }
 
 const checkAuth = () => {
 /*  Getting token value stored in cacheProvider, if token is not present we will open login page 
     for all internal dashboard routes  */
-    const TOKEN = cacheProvider.getItem("token");
+    const TOKEN = cacheProvider.getItem("access_token");
     const PUBLIC_ROUTES = ["login", "forgot-password", "register", "documentation"]
 
     const isPublicPage = PUBLIC_ROUTES.some( r => window.location.href.includes(r))
@@ -36,12 +41,16 @@ const checkAuth = () => {
         return;
     }else{
         checkTokenExpiry();
+        
         axios.defaults.headers.common['Authorization'] = `Bearer ${TOKEN}`
+        axios.defaults.headers.common['Identifier'] = cacheProvider.id_token;
 
         axios.interceptors.request.use(function (config) {
             // UPDATE: Add this code to show global loading indicator
-            document.body.classList.add('loading-indicator');
-            checkTokenExpiry();
+            if (!config.url.includes(process.env.REACT_APP_AUTH0_DOMAIN)) {
+              document.body.classList.add('loading-indicator');
+            }
+            
             return config
           }, function (error) {
             return Promise.reject(error);
@@ -64,11 +73,10 @@ const checkAuth = () => {
 }
 
 export const checkToken = () => {
-  return sessionStorage.getItem("token");
+  return sessionStorage.getItem("access_token");
 }
 
 export const setToken = (token) => {
-  sessionStorage.setItem("token", token);
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
@@ -79,15 +87,16 @@ export class Auth0TokenProvider {
     this.responseType = 'code'
     this.clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
     this.callbackUrl = process.env.REACT_APP_AUTH0_CALLBACK_URL;
+    this.domain = process.env.REACT_APP_AUTH0_DOMAIN;
   }
 
   getAuthorizeUrl() {
     return `https://dev-jja1yv2m7fu0pjyn.us.auth0.com/authorize?` + 
                 `audience=${this.audience}&` +
                 `scope=${this.scope}&` +
-                  `response_type=${this.responseType}&` +
-                  `client_id=${this.clientId}&` +
-                  `redirect_uri=${this.callbackUrl}`;
+                `response_type=${this.responseType}&` +
+                `client_id=${this.clientId}&` +
+                `redirect_uri=${this.callbackUrl}`;
   }
 
   getAuthenticationCodeFromUrl(){
@@ -122,16 +131,7 @@ export class Auth0TokenProvider {
         setToken(credential.access_token);
         Object.keys(credential).forEach(k => sessionStorage.setItem(k, credential[k]))
 
-        window.location.href = '/app/welcome'
-
-        setInterval(() => {
-          alert('it\'s time');
-        }, credential.expires_in * 1000)
-
-        requestWithRefreshTokenInterval = setInterval(() => {
-          debugger
-          this.requestWithRefreshToken()
-        }, (credential.expires_in + 20) * 1000 );
+        window.location.href = '/app/welcome';
       }
     })
   }
@@ -146,15 +146,22 @@ export class Auth0TokenProvider {
 
     const headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    return axios.post('https://dev-jja1yv2m7fu0pjyn.us.auth0.com/oauth/token', data, { headers }).then(res => {
+    return axios.post(`https://${this.domain}/oauth/token`, data, { headers }).then(res => {
       console.log(res);
       if (res && res.data) {
         const credential = res.data;
         setToken(credential.access_token);
         Object.keys(credential).forEach(k => sessionStorage.setItem(k, credential[k]))
+        checkAuth();
       }
     }).catch(res => {
-      debugger
+      ["access_token",
+      "expires_in",
+      "id_token",
+      "refresh_token",
+      "scope",
+      "token_type"].forEach(x => { cacheProvider.removeItem(x); })
+      window.location.href = '/login'
     })
   }
 }

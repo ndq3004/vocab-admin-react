@@ -59,7 +59,7 @@ export const generateExample = createAsyncThunk(
   "vocab/example",
   async (wordText, { rejectWithValue }) => {
     try {
-      const res = await axios.get(serverLink + "openai/" + wordText);
+      const res = await axios.get(serverLink + "/openai/" + wordText);
       return res.data;
     } catch (error) {
       rejectWithValue(error);
@@ -71,7 +71,7 @@ export const backup = createAsyncThunk(
   "vocab/backup",
   async (wordText, { rejectWithValue }) => {
     try {
-      const res = await axios.get(serverLink + "backup", { responseType: 'blob'});
+      const res = await axios.get(serverLink + "/backup", { responseType: 'blob'});
       // create file link in browser's memory
       const href = URL.createObjectURL(res.data);
 

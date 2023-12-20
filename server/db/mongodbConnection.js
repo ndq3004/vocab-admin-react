@@ -17,10 +17,9 @@ exports.filterWithId = (id) => {
     return { _id: new ObjectId(id) };
 }
 
-exports.getAll = async (dbClient) => {
+exports.getAll = async (dbClient, user_id) => {
     try {
-        const cursor = dbClient.find({ review_count: { $lt: 6 }});
-        console.log(cursor)
+        const cursor = dbClient.find({ review_count: { $lt: 6 }, user_id });
         // Print a message if no documents were found
         if ((await dbClient.countDocuments({})) === 0) {
             console.log("No documents found!");

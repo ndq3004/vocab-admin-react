@@ -6,7 +6,7 @@ exports.configApp = (app) => {
     app.use(express.json());
     
     console.log("here")
-    var allowlist = ['http://localhost:3000', 'http://localhost:3001']
+    var allowlist = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081',]
     var corsOptionsDelegate = function (req, callback) {
         var corsOptions;
         if (allowlist.indexOf(req.header('Origin')) !== -1) {

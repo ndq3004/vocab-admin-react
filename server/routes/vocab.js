@@ -4,11 +4,13 @@ const path = require('path')
 
 const { vocabClient, filterWithId, getAll } = require("./../db/mongodbConnection");
 const { generateExampleForWord } = require('../extentions/openaiGenerator');
+const { getUserId } = require("../helpers/getUserIdFromRequestContext");
 
 // /api
 
 router.get('/all', async (req, res) => {
-  const result = await getAll(vocabClient());
+  const userId = getUserId(req);
+  const result = await getAll(vocabClient(), userId);
   res.send({data: result});
 })
 
@@ -19,17 +21,23 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('', async (req, res) => {
+  const userId = getUserId(req);
   const payload = req.body;
-  const doc = {
-    word: payload.word,
-    word_type: payload.word_type,
-    meaning: payload.meaning,
-    review_count: payload.review_count,
-    created_date: new Date()
+  if (userId && payload){
+    const doc = {
+      user_id: userId,
+      word: payload.word,
+      word_type: payload.word_type,
+      meaning: payload.meaning,
+      review_count: payload.review_count,
+      created_date: new Date(),
+    }
+    console.log(doc)
+    await vocabClient().insertOne(doc);
+    res.send({data: doc});
+  } else {
+    res.send({status: 400})
   }
-  console.log(doc)
-  await vocabClient().insertOne(payload);
-  res.send({data: payload});
 })
 
 router.put('/:id', async (req, res) => {

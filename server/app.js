@@ -7,7 +7,7 @@ const { auth } = require("express-oauth2-jwt-bearer");
 require("./configuration/setupConfig").configApp(app);
 
 const checkJwt = auth({
-  audience: process.env.AUTH_AUDIENCE,
+  audience: process.env.AUTH_VOCAB_API_AUDIENCE,
   issuerBaseURL: process.env.AUTH_ISSUER_BASE_URL,
   tokenSigningAlg: process.env.AUTH_TOKEN_SIGNING_ALG,
 });
@@ -15,10 +15,13 @@ const checkJwt = auth({
 //router
 const vocabRouter = require("./routes/vocab");
 const defaultRouter = require("./routes/default");
+const registerRouter = require("./routes/register");
 
-app.get('/api/test', (req, res) => {
-  res.send({ success: 'test version' });
+app.get('/api/test', (_, res) => {
+  res.send({ success: 'test version 1' });
 })
+
+app.use('/api/register', registerRouter)
 
 app.use('/api/vocab', checkJwt, vocabRouter)
 
